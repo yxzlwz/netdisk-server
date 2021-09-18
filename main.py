@@ -16,6 +16,7 @@ print("-----程序正在初始化-----")
 
 thisDir = os.path.dirname(os.path.abspath(__file__))  # 相对目录
 app = Flask(__name__)  # 初始化app对象
+app.secret_key = config.server_title
 dropzone = Dropzone(app)
 
 
@@ -199,11 +200,12 @@ def set_dir():
 @app.route("/download/<path:filename>")
 def download_file(filename):
     filename = urllib.parse.unquote(filename)
-    filepath = "%s/files/%s" % (thisDir, filename)
-    if os.path.isdir(filepath):
-        zipDir(filepath, "%s/zip/%s.zip" % (thisDir, filename.replace("/", "-")))
-        filepath = "%s/zip/%s.zip" % (thisDir, filename.replace("/", "-"))
-    return send_from_directory(filepath, "")
+    filepath = "%s/files/" % thisDir
+    if os.path.isdir(filepath + filename):
+        zipDir(filepath + filename, "%s/zip/%s.zip" % (thisDir, filename.replace("/", "-")))
+        filename = "%s.zip" % (filename.replace("/", "-"))
+        filepath = "%s/zip/" % thisDir
+    return send_from_directory(filepath, filename)
 
 
 @app.route("/upload", methods=["POST"])
